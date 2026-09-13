@@ -1,0 +1,144 @@
+@import "tailwindcss";
+
+/* ============================================================
+   Chegusan — sistema de diseño (Tailwind v4: la config vive acá)
+   En v4 NO hay tailwind.config.js. Los tokens se declaran en @theme
+   y cada --color-* genera solo las utilidades bg-/text-/border-.
+   ============================================================ */
+
+@theme {
+  /* Superficies cálidas — nunca blanco puro de fondo */
+  --color-cream: #fbf6ec;
+  --color-crema: #f4ecdb;
+  --color-linea: #ece2d0;
+
+  /* Tinta cálida */
+  --color-ink: #241c15;
+  --color-ink-soft: #6f6154;
+
+  /* Marca */
+  --color-mostaza: #e9a320;
+  --color-mostaza-dark: #cd8d10;
+  --color-tomate: #e24b32;
+  --color-tomate-dark: #c33d26;
+  --color-verde: #3d7a3a;
+}
+
+/* Fuentes enlazadas por variable desde next/font (ver layout.tsx).
+   inline = la utilidad usa el valor directo, sin crear otra variable. */
+@theme inline {
+  --font-sans: var(--font-jakarta);
+  --font-display: var(--font-fraunces);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+}
+
+::selection {
+  background-color: var(--color-mostaza);
+  color: var(--color-ink);
+}
+
+/* ============================================================
+   Carrito: <dialog> nativo como slide-over (panel lateral).
+   showModal() da top layer + foco atrapado + ESC gratis; acá va
+   sólo el posicionamiento y la animación de entrada/salida.
+   ============================================================ */
+
+.cart-dialog {
+  position: fixed;
+  inset: 0 0 0 auto; /* pegado al borde derecho, alto completo */
+  margin: 0;
+  height: 100dvh;
+  width: min(28rem, 100vw);
+  max-width: 100vw;
+  border: 0;
+  padding: 0;
+  background-color: var(--color-cream);
+  color: var(--color-ink);
+  /* Estado cerrado: fuera de pantalla a la derecha. */
+  transform: translateX(100%);
+  transition:
+    transform 0.32s cubic-bezier(0.32, 0.72, 0, 1),
+    display 0.32s allow-discrete,
+    overlay 0.32s allow-discrete;
+}
+
+.cart-dialog[open] {
+  transform: translateX(0);
+  /* @starting-style = desde dónde anima al aparecer en el top layer. */
+  @starting-style {
+    transform: translateX(100%);
+  }
+}
+
+.cart-dialog::backdrop {
+  background-color: rgb(0 0 0 / 0);
+  transition:
+    background-color 0.32s ease,
+    display 0.32s allow-discrete,
+    overlay 0.32s allow-discrete;
+}
+
+.cart-dialog[open]::backdrop {
+  background-color: rgb(0 0 0 / 0.45);
+  @starting-style {
+    background-color: rgb(0 0 0 / 0);
+  }
+}
+
+/* Bloquea el scroll del fondo mientras el carrito está abierto (sin JS). */
+:root:has(.cart-dialog[open]) {
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cart-dialog {
+    transition-duration: 0.01ms;
+    transform: none;
+  }
+  .cart-dialog[open] {
+    @starting-style {
+      transform: none;
+    }
+  }
+}
+
+/* ============================================================
+   Mapa Leaflet — pin de marca + que no tape el navbar sticky.
+   ============================================================ */
+
+.leaflet-container {
+  z-index: 0; /* sus panes internos quedan por debajo del header (z-50) */
+  font-family: inherit;
+  background: var(--color-crema);
+}
+
+.chegusan-pin span {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  font-size: 17px;
+  background: var(--color-tomate);
+  border: 2px solid #fff;
+  border-radius: 9999px;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.35);
+}
+
+.leaflet-popup-content {
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.leaflet-popup-content a {
+  color: var(--color-tomate);
+  font-weight: 700;
+}
